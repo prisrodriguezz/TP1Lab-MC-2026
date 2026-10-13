@@ -1,4 +1,3 @@
-
 function r = ejecutarMetodo(nombre, cfg)
 
   % ============================================================
@@ -9,14 +8,17 @@ function r = ejecutarMetodo(nombre, cfg)
 
     case 'Interpolacion Lineal'
 
-      r = interpolacionLineal( ...
-        cfg.f, cfg.a, cfg.b, cfg.tol, cfg.maxIter);
+      r = interpolacionLineal(cfg.f, cfg.a, cfg.b, cfg.tol, cfg.maxIter);
 
     case 'Iteracion'
 
       r = iteracion( ...
-        cfg.g, cfg.x0, cfg.tol, cfg.maxIter, ...
-        cfg.f, cfg.exprG);
+        cfg.g, cfg.x0, cfg.tol, cfg.maxIter, cfg.f, cfg.exprG);
+
+    case 'Iteracion + Aitken'
+
+      r = aitken( ...
+        cfg.g, cfg.x0, cfg.tol, cfg.maxIter, cfg.f, cfg.exprG);
 
     otherwise
 
@@ -26,45 +28,40 @@ function r = ejecutarMetodo(nombre, cfg)
 
 
   % Guarda una copia de los parametros de la ejecucion.
-  r.datosUtilizados = { ...
-    ['Metodo: ', r.metodo], ...
-    ['Funcion f(x): ', cfg.exprF], ...
+  r.datosUtilizados = {
+    ['Metodo: ', r.metodo], ['Funcion f(x): ', cfg.exprF]
   };
 
 
- 
   % Agrega los datos especificos de cada metodo.
 
-  if strcmp(nombre, 'Iteracion')
+  if strcmp(nombre, 'Iteracion') || strcmp(nombre, 'Iteracion + Aitken')
 
-    r.datosUtilizados{end+1} = ...
-      ['Funcion g(x): ', cfg.exprG];
+    r.datosUtilizados{end+1} = ['Funcion g(x): ', cfg.exprG];
 
-    r.datosUtilizados{end+1} = ...
-      sprintf('Valor inicial x0: %.12g', cfg.x0);
+    r.datosUtilizados{end+1} = sprintf('Valor inicial x0: %.12g', cfg.x0);
+
+    if strcmp(nombre, 'Iteracion + Aitken')
+      r.datosUtilizados{end+1} = 'Aceleracion: metodo de Aitken Delta^2';
+    endif
 
   elseif strcmp(nombre, 'Interpolacion Lineal')
 
-    r.datosUtilizados{end+1} = ...
-      sprintf('Intervalo: [%.12g, %.12g]', cfg.a, cfg.b);
+    r.datosUtilizados{end+1} = sprintf('Intervalo: [%.12g, %.12g]', cfg.a, cfg.b);
 
   endif
 
 
-  % Agrega los parametros comunes a ambos metodos.
+  % Agrega los parametros comunes a todos los metodos.
+  r.datosUtilizados{end+1} = sprintf('Tolerancia: %.12g', cfg.tol);
 
-  r.datosUtilizados{end+1} = ...
-    sprintf('Tolerancia: %.12g', cfg.tol);
+  r.datosUtilizados{end+1} = sprintf('Maximo de iteraciones: %d', cfg.maxIter);
 
-  r.datosUtilizados{end+1} = ...
-    sprintf('Maximo de iteraciones: %d', cfg.maxIter);
 
   % Aclaracion adicional cuando no se alcanza la convergencia.
   if ~r.converge
 
-    r.analisis{end+1} = ...
-      ['NO CONVERGIO indica que no se cumplio el criterio de parada ', ...
-      'dentro del maximo de iteraciones. No demuestra divergencia matematica.'];
+    r.analisis{end+1} = ['NO CONVERGIO indica que no se cumplio el criterio de parada dentro del maximo de iteraciones. No demuestra divergencia matematica.'];
 
   endif
 

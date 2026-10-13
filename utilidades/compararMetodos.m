@@ -12,8 +12,7 @@ function c = compararMetodos(nombre1, nombre2, cfg)
 
 
   % Calcular la diferencia entre las raices aproximadas.
-  c.diferenciaRaices = ...
-    abs(c.resultado1.raiz - c.resultado2.raiz);
+  c.diferenciaRaices = abs(c.resultado1.raiz - c.resultado2.raiz);
 
 
   % Definir las columnas de la tabla comparativa.
@@ -50,11 +49,10 @@ function c = compararMetodos(nombre1, nombre2, cfg)
 
   % Advertencias generales para interpretar la comparacion.
   c.advertencia = ...
-    ['Para Punto Fijo, debe justificarse que x=g(x) ', ...
-     'equivale a f(x)=0. El programa no demuestra esa equivalencia.'];
+    ['Para Punto Fijo, debe justificarse que x = g(x) equivale a f(x) = 0. El programa no demuestra esa equivalencia.'];
 
   c.advertencia = [c.advertencia, ...
-    ' Los errores de ambos metodos pueden tener distinto significado. ', ...
+    'Los errores de ambos metodos pueden tener distinto significado.',
     'El tiempo de ejecucion no determina por si solo que metodo es mejor.'];
 
 
@@ -63,8 +61,7 @@ function c = compararMetodos(nombre1, nombre2, cfg)
      c.resultado2.converge && ...
      c.diferenciaRaices > 10 * cfg.tol
 
-    c.advertencia = [c.advertencia, ...
-      ' Las aproximaciones difieren: pueden corresponder a raices distintas.'];
+    c.advertencia = [c.advertencia, 'Las aproximaciones difieren: pueden corresponder a raices distintas.'];
 
   endif
 
@@ -104,35 +101,34 @@ function r = ejecutarSeguro(nombre, cfg)
 
     r.tiempo = NaN;
 
-    r.mensaje = ...
-      ['NO EJECUTABLE / INTERRUMPIDO: ', err.message];
+    r.mensaje = ['NO EJECUTABLE / INTERRUMPIDO: ', err.message];
 
-    r.analisis = { ...
-      r.mensaje, ...
-      'No hay una solucion convergente ni un tiempo completo del algoritmo.' ...
-    };
+    r.analisis = { r.mensaje, 'No hay una solucion convergente ni un tiempo completo del algoritmo.'};
 
 
     % Guardar los datos disponibles antes del error.
-    r.datosUtilizados = { ...
-      ['Metodo: ', nombre], ...
-      ['Funcion f(x): ', cfg.exprF], ...
-      sprintf('Intervalo: [%.12g, %.12g]', cfg.a, cfg.b), ...
-      sprintf('Tolerancia: %.12g; maximo de iteraciones: %d', ...
-              cfg.tol, cfg.maxIter) ...
+    r.datosUtilizados = {
+      ['Metodo: ', nombre],
+      ['Funcion f(x): ', cfg.exprF],
+      sprintf('Tolerancia: %.12g; maximo de iteraciones: %d', cfg.tol, cfg.maxIter)
     };
 
+    % Para Interpolacion se agrega el intervalo [a,b]
+    if isfield(cfg, 'a') && isfield(cfg, 'b') && ~isempty(cfg.a) && ~isempty(cfg.b)
 
-    % Agregar g(x) y x0 solamente para Punto Fijo.
-    if strcmp(nombre, 'Iteracion')
+      r.datosUtilizados{end+1} = sprintf('Intervalo: [%.12g, %.12g]', cfg.a, cfg.b);
 
-      r.datosUtilizados{end+1} = ...
-        ['Funcion g(x): ', cfg.exprG];
+    endif
+
+
+    % Agregar g(x) y x0 solamente para Iteracion y Aitken.
+    if any(strcmp(nombre, {'Iteracion', 'Iteracion + Aitken'}))
+
+      r.datosUtilizados{end+1} = ['Funcion g(x): ', cfg.exprG];
 
       if ~isempty(cfg.x0)
 
-        r.datosUtilizados{end+1} = ...
-          sprintf('Valor inicial x0: %.12g', cfg.x0);
+        r.datosUtilizados{end+1} = sprintf('Valor inicial x0: %.12g', cfg.x0);
 
       endif
 

@@ -2,7 +2,7 @@
 function interfazMetodos()
 
   % Metodos numericos disponibles
-  metodos = {'Interpolacion Lineal','Iteracion'};
+  metodos = {'Interpolacion Lineal','Iteracion', 'Iteracion + Aitken'};
 
   % Ventana principal
   fig = figure('Name','Laboratorio de Metodos Numericos', ...
@@ -169,25 +169,26 @@ function interfazMetodos()
     'Max',20,'Min',0,'Enable','inactive', ...
     'Units','normalized','Position',[.02 .03 .96 .49], ...
     'HorizontalAlignment','left', ...
-    'FontSize',10, ...
+    'FontSize',12, ...
     'String','Ingrese los datos y ejecute una operacion.');
 
   h.datos = uicontrol(h.paneles(1),'Style','edit', ...
     'Max',20,'Min',0,'Enable','inactive', ...
     'Units','normalized','Position',[.02 .55 .96 .42], ...
     'HorizontalAlignment','left', ...
-    'FontSize',10, ...
+    'FontSize',12, ...
     'String','DATOS UTILIZADOS: se registran al ejecutar.');
 
   h.tabla = uitable(h.paneles(2), ...
-    'Units','normalized','Position',[.01 .02 .98 .96], ...
+    'Units','normalized','Position',[.01 .01 .98 .98], ...
     'Data',{},'ColumnName',{},'RowName',{}, ...
-    'FontSize',9);
+    'FontSize',11);
 
   h.analisis = uicontrol(h.paneles(3),'Style','edit', ...
     'Max',30,'Min',0,'Enable','inactive', ...
     'Units','normalized','Position',[.02 .03 .96 .94], ...
     'HorizontalAlignment','left', ...
+    'FontSize',12, ...
     'String','Aqui se mostraran formulas y condiciones.');
 
   h.axes = axes('Parent',h.paneles(4), ...
@@ -262,7 +263,7 @@ function interfazMetodos()
       set(q.lblM1,'String','Metodo');
     endif
 
-    usaG = any(strcmp(nombres,'Iteracion'));
+    usaG = any(strcmp(nombres,'Iteracion')) || any(strcmp(nombres,'Iteracion + Aitken'));
 
     set([q.exprG,q.lblG,q.x0,q.lblX0], ...
       'Visible',onoff(usaG));
@@ -326,7 +327,7 @@ function interfazMetodos()
       nombres{end+1} = q.metodos{get(q.metodo2,'Value')};
     endif
 
-    usaG = any(strcmp(nombres,'Iteracion'));
+    usaG = any(strcmp(nombres,'Iteracion')) || any(strcmp(nombres,'Iteracion + Aitken'));
     usaIntervalo = any(strcmp(nombres,'Interpolacion Lineal'));
 
     % Tanteo utiliza su propio intervalo
@@ -613,7 +614,7 @@ function interfazMetodos()
           if isnan(valor)
             datos{i,j} = '—';
           elseif isinf(valor)
-            datos{i,j} = 'Inf';
+            datos{i,j} = '—';
           else
             datos{i,j} = sprintf('%.8g',valor);
           endif
@@ -829,8 +830,8 @@ function interfazMetodos()
 
           % Si se comparan metodos de distinta naturaleza,
           % se grafica la funcion original
-          pf1 = strcmp(r.metodo,'Iteracion / Punto Fijo');
-          pf2 = strcmp(r2.metodo,'Iteracion / Punto Fijo');
+          pf1 = any(strcmp(r.metodo, { 'Iteracion', 'Iteracion + Aitken'}));
+          pf2 = any(strcmp(r2.metodo, { 'Iteracion', 'Iteracion + Aitken'}));
 
           if pf1 ~= pf2
             n1 = 'Interpolacion Lineal';
