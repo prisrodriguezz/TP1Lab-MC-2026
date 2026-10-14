@@ -7,8 +7,7 @@ function r = interpolacionLineal(f, a, b, tolerancia, maxIter)
   validarParametros(tolerancia, maxIter, [], [a, b]);
 
   % Definir columnas de la tabla de iteraciones.
-  r.columnas = {'a', 'b', 'f(a)', 'f(b)', ...
-    'x interpolado', 'f(x)', 'Nuevo intervalo', 'Error'};
+  r.columnas = {'a', 'b', 'f(a)', 'f(b)', 'x interpolado', 'f(x)', 'Nuevo intervalo', 'Error'};
 
   % Validar intervalo.
   if a >= b
@@ -31,12 +30,11 @@ function r = interpolacionLineal(f, a, b, tolerancia, maxIter)
 
   % Verificar valores finitos y cambio de signo.
   if ~all(isfinite([fa, fb])) || fa ~= 0 && fb ~= 0 && sign(fa) == sign(fb)
-    error('Regula Falsi requiere valores finitos y f(a)*f(b) < 0.');
+    error('Interpolacion requiere valores finitos y f(a) * f(b) < 0');
   endif
 
   % Verificar si alguno de los extremos es raiz exacta.
   if fa == 0 || fb == 0
-
     if fa == 0
       r.raiz = a;
     else
@@ -46,7 +44,7 @@ function r = interpolacionLineal(f, a, b, tolerancia, maxIter)
     r.valorFuncion = 0;
     r.error = 0;
     r.converge = true;
-    r.mensaje = 'Raiz exacta encontrada en un extremo; no fue necesario iterar.';
+    r.mensaje = 'Raiz exacta encontrada en un extremo. No fue necesario iterar.';
     r.analisis = {r.mensaje};
     r.historial = r.raiz;
 
@@ -55,10 +53,11 @@ function r = interpolacionLineal(f, a, b, tolerancia, maxIter)
   endif
 
   % Registrar informacion teorica del metodo.
-  r.analisis = {'Formula: x = (a*f(b) - b*f(a)) / (f(b) - f(a))', ...
-    'Se reemplaza el extremo que tiene el mismo signo que f(x).', ...
-    'Parada: |x_n-x_(n-1)| < E, o raiz exacta.', ...
-    sprintf('Tolerancia solicitada: E = %.10g', tolerancia)};
+  r.analisis = {'Formula de interpolación: x = (a * f(b) - b * f(a)) / (f(b) - f(a))',
+    'Actualización del intervalo: Se conserva el subintervalo cuyos extremos presentan un cambio de signo.',
+    'Criterio de parada:',
+    '- Error entre aproximaciones menor que la tolerancia: |x_n - x_(n-1)| < E',
+    '- Raíz exacta encontrada: f(x_n) = 0'};
 
   % Inicializar estructuras y comenzar la medicion del algoritmo.
   datos = cell(maxIter, 8);
@@ -68,12 +67,11 @@ function r = interpolacionLineal(f, a, b, tolerancia, maxIter)
   tic;
 
   for k = 1:maxIter
-
     % Verificar que el denominador sea valido.
     den = fb - fa;
 
     if abs(den) <= eps*max(1, max(abs([fa, fb])))
-      error('Denominador nulo o demasiado pequeno en Regula Falsi.');
+      error('Denominador nulo o demasiado pequeño en Regula Falsi.');
     endif
 
     % Guardar los valores del intervalo actual
@@ -147,21 +145,12 @@ function r = interpolacionLineal(f, a, b, tolerancia, maxIter)
 
   % Generar mensaje segun el estado de convergencia.
   if r.converge
-
-    r.mensaje = ...
-      'Se cumplio el criterio de parada: cambio entre aproximaciones menor que E o raiz exacta.';
-
+    r.mensaje = 'Se cumplio el criterio de parada.';
   else
-
-    r.mensaje = ...
-      'No se alcanzo el criterio de parada dentro del numero maximo de iteraciones.';
-
+    r.mensaje = 'No se alcanzo el criterio de parada dentro del numero maximo de iteraciones.';
   endif
 
   % Agregar observaciones del metodo.
-  r.analisis{end+1} = ...
-    'Se verifico cambio de signo. La garantia teorica requiere continuidad en todo [a,b]; el muestreo no la demuestra.';
-
-  r.analisis{end+1} = ['Finalizacion: ', r.mensaje];
+  r.analisis{end+1} = 'Condición teórica: La garantía de existencia de una raíz requiere que (f) sea continua en ([a,b])';
 
 endfunction

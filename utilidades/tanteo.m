@@ -128,16 +128,11 @@ function r = tanteo(f, a, b, valor, modo)
       numel(r.raicesExactas),rows(cambios));
 
   elseif isempty(cambios)
-
-    r.mensaje = ...
-      'No se detectaron cambios de signo con esta particion.';
-
+    r.mensaje = 'No se detectaron cambios de signo con esta particion.';
   else
-
     r.mensaje = sprintf( ...
       'Se detectaron %d subintervalo(s) con cambio de signo.', ...
       rows(cambios));
-
   endif
 
 endfunction

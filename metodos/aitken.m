@@ -22,13 +22,9 @@ function r = aitken(g, x0, tolerancia, maxIter, f, expresionG, intervalo)
 
   r.columnas = {'x0', 'x1 = g(x0)', 'x2 = g(x1)', 'Aprox. de Aitken', 'Error absoluto'};
 
-  r.analisis = {
-    ['Funcion de iteracion: g(x) = ', expresionG],
-    'Se calculan dos aproximaciones simples por cada ciclo de Aitken.',
-    'Formula: xA = Base - (x1-Base)^2 / (x2-2*x1+Base).',
-    'Si no converge, la aproximacion acelerada pasa a ser la nueva base.',
-    'Criterio de parada: error absoluto entre aproximaciones aceleradas consecutivas < tolerancia.',
-    sprintf('Tolerancia solicitada: %.10g', tolerancia)
+  r.analisis = {'Fórmula de Aitken: xA = x0 - (x1 - x0)^2 / (x2 - 2*x1 + x0)',
+    'Cada ciclo calcula dos aproximaciones simples y una acelerada.',
+    'Criterio de parada: error entre aproximaciones aceleradas consecutivas < tolerancia.'
   };
 
   if ~isempty(intervalo)
@@ -129,15 +125,9 @@ function r = aitken(g, x0, tolerancia, maxIter, f, expresionG, intervalo)
   endif
 
   if r.converge
-    r.mensaje = 'Convergencia alcanzada: error absoluto entre aproximaciones aceleradas consecutivas menor que la tolerancia.';
+    r.mensaje = 'Se alcanzo la tolerancia para el error entre aproximaciones aceleradas.';
   else
-    r.mensaje = 'No se alcanzo la tolerancia dentro del maximo de ciclos de Aitken.';
+    r.mensaje = 'No se alcanzo la tolerancia dentro del maximo de ciclos.';
   endif
-
-  r.analisis{end+1} = 'Cada ciclo genera dos aproximaciones simples y una aproximacion acelerada.';
-
-  r.analisis{end+1} = 'El criterio de parada utiliza exclusivamente el error absoluto entre aproximaciones aceleradas consecutivas.';
-
-  r.analisis{end+1} = ['Finalizacion: ', r.mensaje];
 
 endfunction

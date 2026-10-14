@@ -51,35 +51,36 @@ function r = iteracion(g, x0, tolerancia, maxIter, f, expresionG, intervalo)
   % Estimar la condicion de contraccion por muestreo.
   derivadasValidas = dg(isfinite(dg));
 
+  q = max(abs(derivadasValidas));
+  cumple = numel(derivadasValidas) == numel(dg) && q < 1;
+
   if isempty(derivadasValidas)
     q = NaN;
     cumple = false;
-    diagnostico = 'INDETERMINADO: no se pudo estimar la derivada.';
+  elseif numel(derivadasValidas) ~= numel(dg)
+    q = max(abs(derivadasValidas));
+    cumple = false;
   else
     q = max(abs(derivadasValidas));
-    cumple = numel(derivadasValidas) == numel(dg) && q < 1;
-
-    if numel(derivadasValidas) ~= numel(dg)
-      diagnostico = ...
-        'INDETERMINADO: algunas derivadas no pudieron evaluarse.';
-    elseif cumple
-      diagnostico = ...
-        'Compatible con contraccion en las muestras analizadas.';
-    else
-      diagnostico = ...
-        'No cumple la condicion de contraccion en todas las muestras.';
-    endif
+    cumple = q < 1;
   endif
 
-  r.analisis = { ...
-    ['Funcion de iteracion: g(x) = ', expresionG], ...
-    'Formula: x_(n+1) = g(x_n)', ...
-    sprintf('Analisis por muestreo en %s.', etiqueta), ...
-    sprintf('Maximo |g''(x)| estimado: %.8g', q), ...
-    ['Diagnostico preliminar: ', diagnostico], ...
-    'Este analisis es orientativo y no garantiza convergencia.', ...
-    'Criterio de parada: |x_(n+1)-x_n| < E.', ...
-    sprintf('Tolerancia solicitada: E = %.10g', tolerancia)};
+  if isempty(derivadasValidas)
+    diagnostico = 'No se pudo determinar.';
+  elseif numel(derivadasValidas) ~= numel(dg)
+    diagnostico = 'No se pudo determinar en todas las muestras.';
+  elseif cumple
+    diagnostico = 'La condicion estimada se cumple.';
+  else
+    diagnostico = 'La condicion estimada no se cumple.';
+  endif
+
+  r.analisis = {'Fórmula de iteración: x_(n+1) = g(x_n)',
+    'Condicion de convergencia: |g''(x)| < 1',
+    sprintf('Maximo |g''(x)| estimado: %.8g', q),
+    ['Convergencia: ', diagnostico],
+    'Criterio de parada:',
+    '- Error entre aproximaciones menor que la tolerancia: |x_n - x_(n-1)| < E'};
 
   % ---------------------------------------------------------
   % ITERACIONES
@@ -148,29 +149,13 @@ function r = iteracion(g, x0, tolerancia, maxIter, f, expresionG, intervalo)
     r.converge);
 
   if r.converge
-    r.mensaje = ...
-      'Se alcanzo la tolerancia para el error entre aproximaciones.';
+    r.mensaje = 'Se alcanzo la tolerancia establecida para el error entre aproximaciones.';
   else
-    r.mensaje = ...
-      'No se alcanzo la tolerancia dentro del maximo de iteraciones.';
+    r.mensaje = 'No se alcanzo la tolerancia dentro del maximo de iteraciones.';
   endif
 
-  r.analisis{end+1} = ...
-    ['Comportamiento observado: ', r.comportamiento];
-
-  r.analisis{end+1} = sprintf( ...
-    'Iteraciones realizadas: %d.', r.iteraciones);
-
-  r.analisis{end+1} = sprintf( ...
-    'Error final entre aproximaciones: %.10g.', r.error);
-
   if isempty(f)
-    r.analisis{end+1} = ...
-      'No se proporciono f(x); el residuo se calcula con x-g(x).';
-  else
-    r.analisis{end+1} = sprintf( ...
-      'Residuo informativo |f(xn)|: %.10g (no interviene en la parada).', ...
-      abs(r.valorFuncion));
+    r.analisis{end+1} = 'No se proporciono f(x). El residuo se calcula con x-g(x).';
   endif
 
   % Informacion adicional si se proporciono un intervalo.
@@ -183,8 +168,6 @@ function r = iteracion(g, x0, tolerancia, maxIter, f, expresionG, intervalo)
       x0 >= intervalo(1) && x0 <= intervalo(2));
   endif
 
-  r.analisis{end+1} = ['Finalizacion: ', r.mensaje];
-
 endfunction
 
 
@@ -194,8 +177,7 @@ function comportamiento = clasificarComportamiento(historial, converge)
   % No constituye una demostracion matematica de convergencia.
 
   if numel(historial) < 4
-    comportamiento = ...
-      'Indeterminado: pocas aproximaciones para clasificar.';
+    comportamiento = 'Indeterminado: pocas aproximaciones para clasificar.';
     return;
   endif
 
@@ -203,8 +185,7 @@ function comportamiento = clasificarComportamiento(historial, converge)
   diferencias = diferencias(isfinite(diferencias));
 
   if numel(diferencias) < 3
-    comportamiento = ...
-      'Indeterminado: no hay suficientes diferencias validas.';
+    comportamiento = 'Indeterminado: no hay suficientes diferencias validas.';
     return;
   endif
 
@@ -213,24 +194,19 @@ function comportamiento = clasificarComportamiento(historial, converge)
 
   if converge
     if all(ultimas(2:end).*ultimas(1:end-1) < 0)
-      comportamiento = ...
-        'Convergencia oscilatoria observada.';
+      comportamiento = 'Convergencia oscilatoria observada.';
     else
-      comportamiento = ...
-        'Convergencia observada; sin alternancia sostenida.';
+      comportamiento = 'Convergencia observada. Sin alternancia sostenida.';
     endif
     return;
   endif
 
   if all(magnitudes(2:end) > magnitudes(1:end-1))
-    comportamiento = ...
-      'Posible divergencia: las diferencias aumentan.';
+    comportamiento = 'Posible divergencia: las diferencias aumentan.';
   elseif all(ultimas(2:end).*ultimas(1:end-1) < 0)
-    comportamiento = ...
-      'Oscilacion sin convergencia dentro del limite.';
+    comportamiento = 'Oscilacion sin convergencia dentro del limite.';
   else
-    comportamiento = ...
-      'Indeterminado: no se observa un patron concluyente.';
+    comportamiento = 'Indeterminado: no se observa un patron concluyente.';
   endif
 
 endfunction

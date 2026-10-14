@@ -36,19 +36,11 @@ function r = ejecutarMetodo(nombre, cfg)
   % Agrega los datos especificos de cada metodo.
 
   if strcmp(nombre, 'Iteracion') || strcmp(nombre, 'Iteracion + Aitken')
-
     r.datosUtilizados{end+1} = ['Funcion g(x): ', cfg.exprG];
-
     r.datosUtilizados{end+1} = sprintf('Valor inicial x0: %.12g', cfg.x0);
 
-    if strcmp(nombre, 'Iteracion + Aitken')
-      r.datosUtilizados{end+1} = 'Aceleracion: metodo de Aitken Delta^2';
-    endif
-
   elseif strcmp(nombre, 'Interpolacion Lineal')
-
     r.datosUtilizados{end+1} = sprintf('Intervalo: [%.12g, %.12g]', cfg.a, cfg.b);
-
   endif
 
 
@@ -60,9 +52,7 @@ function r = ejecutarMetodo(nombre, cfg)
 
   % Aclaracion adicional cuando no se alcanza la convergencia.
   if ~r.converge
-
-    r.analisis{end+1} = ['NO CONVERGIO indica que no se cumplio el criterio de parada dentro del maximo de iteraciones. No demuestra divergencia matematica.'];
-
+    r.analisis{end+1} = ['NO CONVERGIO indica que no se cumplio el criterio de parada dentro del maximo de iteraciones.'];
   endif
 
 endfunction
