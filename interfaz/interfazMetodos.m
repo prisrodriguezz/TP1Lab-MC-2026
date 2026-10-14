@@ -836,13 +836,14 @@ function interfazMetodos()
         % Definir el rango del grafico
         if isempty(cfg.a) || isempty(cfg.b)
 
-          if isempty(cfg.x0)
-            error('Ingrese un intervalo valido para graficar.');
-          endif
+          % En una ejecucion individual de Punto Fijo el intervalo no se
+          % usa en el calculo, pero si puede usarse para el grafico.
+          rangoA = numero(q.a,'a');
+          rangoB = numero(q.b,'b');
 
-          % Rango predeterminado alrededor de x0 para Iteracion
-          rangoA = cfg.x0 - 5;
-          rangoB = cfg.x0 + 5;
+          if rangoA >= rangoB
+            error('Para graficar debe cumplirse a < b.');
+          endif
 
         else
 
@@ -861,15 +862,6 @@ function interfazMetodos()
 
           r = q.comparacion.resultado1;
           r2 = q.comparacion.resultado2;
-
-          % Si se comparan metodos de distinta naturaleza,
-          % se grafica la funcion original
-          pf1 = any(strcmp(r.metodo, { 'Iteracion', 'Iteracion + Aitken'}));
-          pf2 = any(strcmp(r2.metodo, { 'Iteracion', 'Iteracion + Aitken'}));
-
-          if pf1 ~= pf2
-            n1 = 'Interpolacion Lineal';
-          endif
 
         endif
 
