@@ -21,7 +21,7 @@ function interfazMetodos()
     'Units','normalized','Position',[.04 .95 .92 .035], ...
     'FontWeight','bold','HorizontalAlignment','left');
 
-  [h.exprF,h.lblF] = campo(p,'f(x)',.905,'x^3-2*x-5');
+  [h.exprF,h.lblF] = campo(p,'f(x)',.905,'pi*x^2*(9-x)/3-30');
 
   % ---------------------------------------------------------
   % DATOS PARA TANTEO
@@ -31,7 +31,7 @@ function interfazMetodos()
     'FontWeight','bold','HorizontalAlignment','left');
 
   [h.xInicial,h.lblXInicial] = campo(p,'x inicial',.83,'0');
-  [h.xFinal,h.lblXFinal] = campo(p,'x final',.79,'5');
+  [h.xFinal,h.lblXFinal] = campo(p,'x final',.79,'6');
 
   % Selector del modo de incremento
   h.lblModoTanteo = uicontrol(p,'Style','text', ...
@@ -41,13 +41,13 @@ function interfazMetodos()
 
   h.modoTanteo = uicontrol(p,'Style','popupmenu', ...
     'String',{'Manual (h)','Automatico (n)'}, ...
-    'Value',2, ...
+    'Value',1, ...
     'Units','normalized','Position',[.38 .75 .58 .04], ...
     'Callback',@actualizarModoTanteo);
 
   % Valor de h manual o cantidad de divisiones automatica
   [h.valorTanteo,h.lblValorTanteo] = ...
-    campo(p,'Divisiones (n)',.71,'20');
+    campo(p,'Divisiones (n)',.71,'0.5');
 
   uicontrol(p,'Style','pushbutton','String','Ejecutar Tanteo', ...
     'Units','normalized','Position',[.05 .665 .9 .04], ...
@@ -87,11 +87,12 @@ function interfazMetodos()
     'Position',[.38 .48 .58 .04], ...
     'Callback',@actualizarCampos);
 
+  % METODOS NUMERICOS
   [h.a,h.lblA] = campo(p,'a',.435,'2');
-  [h.b,h.lblB] = campo(p,'b',.39,'3');
-  [h.exprG,h.lblG] = campo(p,'g(x)',.345,'(2*x+5)^(1/3)');
+  [h.b,h.lblB] = campo(p,'b',.39,'2.5');
+  [h.exprG,h.lblG] = campo(p,'g(x)',.345,'sqrt(90/(pi*(9-x)))');
   [h.x0,h.lblX0] = campo(p,'x0 requerido',.30,'2');
-  [h.tol,h.lblTol] = campo(p,'Tolerancia E',.255,'1e-6');
+  [h.tol,h.lblTol] = campo(p,'Tolerancia E',.255,'0.001');
   [h.maxIter,h.lblMax] = campo(p,'Max. iter.',.21,'100');
 
   % Botones de calculo y gestion de resultados
